@@ -1,0 +1,220 @@
+@using MyLibrary.ADClasses
+@{ var usrData = new UserInfo(); }
+
+@model IEnumerable<MyLibrary.Models.BooksAvailable>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Books Availables</h2>
+
+<table class="table table-bordered table-sm shadow">
+    <tr class="">
+        <th>
+            @Html.DisplayNameFor(model => model.BookName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Author)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Isbn13)
+        </th>
+        @if (usrData.checkIfUserIsAdmin())
+        {
+            <th>
+                @Html.DisplayNameFor(model => model.Isbn10)
+            </th>
+        }
+        <th>
+            @Html.DisplayNameFor(model => model.Publisher)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.YearPublished)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.CoverImage)
+        </th>
+        @if (usrData.checkIfUserIsAdmin())
+        {
+            <th>
+                @Html.DisplayNameFor(model => model.QtyAvailable)
+            </th>
+        }
+        <th>Action</th>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.BookName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Author)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Isbn13)
+            </td>
+            @if (usrData.checkIfUserIsAdmin())
+            {
+                <td>
+                    @Html.DisplayFor(modelItem => item.Isbn10)
+                </td>
+            }
+            <td>
+                @Html.DisplayFor(modelItem => item.Publisher)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.YearPublished)
+            </td>
+            <td>
+                <img src="@item.CoverImage" class="img-thumbnail" alt="" width="50" height="150" />
+            </td>
+            @if (usrData.checkIfUserIsAdmin())
+            {
+                <td>
+                    {@Html.DisplayFor(modelItem => item.QtyAvailable)}
+                </td>
+            }
+            <td>
+                @Html.ActionLink("Details", "Details", new { id = item.id }, new { @class = "btn btn-success btn-sm", data_toggle = "modal", data_target = "#detailsModal" })
+                @if (item.QtyAvailable > 0)
+                {
+                    <button class="btn btn-primary btn-sm borrowButton" data-toggle="modal" data-target="#borrowModal" data-id="@item.id">BORROW</button>
+                }
+                else
+                {
+                    <button class="btn btn-primary btn-sm waitlistButton" data-toggle="modal" data-target="#waitlistModal" data-id="@item.id">Waitlist</button>
+                }
+            </td>
+        </tr>
+    }
+</table>
+
+<!-- Detalii modale -->
+<div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailsModalLabel">Detalii Carte</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="bookDetails">
+                    <!-- Aici vor apărea detaliile cărții -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pentru Borrow -->
+<div class="modal fade" id="borrowModal" tabindex="-1" role="dialog" aria-labelledby="borrowModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="borrowModalLabel">Împrumut Carte</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Sigur doriți să împrumutați această carte?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Nu</button>
+                <button type="button" class="btn btn-primary" id="confirmBorrow">Da</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pentru Waitlist -->
+<div class="modal fade" id="waitlistModal" tabindex="-1" role="dialog" aria-labelledby="waitlistModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="waitlistModalLabel">Listă de Așteptare</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Sigur doriți să adăugați această carte în lista de așteptare?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Nu</button>
+                <button type="button" class="btn btn-primary" id="confirmWaitlist">Da</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    // Funcție pentru a afișa detaliile cărții în modal
+    $('.btn-success').on('click', function () {
+        var bookId = $(this).attr('data-id');
+        $.ajax({
+            type: "GET",
+            url: "/BooksAvailable/Details/" + bookId,
+            success: function (response) {
+                $('#bookDetails').html(response);
+                $('#detailsModal').modal('show');
+            },
+            error: function () {
+                alert("Eroare de comunicare cu serverul.");
+            }
+        });
+    });
+
+    // Funcție pentru confirmarea împrumutului
+    $('#confirmBorrow').on('click', function () {
+        var bookId = $(this).attr('data-id');
+        $.ajax({
+            type: "POST",
+            url: "/BooksAvailable/Borrow/" + bookId,
+            success: function (response) {
+                if (response.success) {
+                    alert(response.message);
+                    $('#borrowModal').modal('hide');
+                    location.reload(); // Reîncarcă pagina pentru a actualiza stocul și lista de împrumuturi
+                } else {
+                    alert(response.message);
+                    $('#borrowModal').modal('hide');
+                }
+            },
+            error: function () {
+                alert("Eroare de comunicare cu serverul.");
+                $('#borrowModal').modal('hide');
+            }
+        });
+    });
+
+    // Funcție pentru confirmarea adăugării în lista de așteptare
+    $('#confirmWaitlist').on('click', function () {
+        var bookId = $(this).attr('data-id');
+        $.ajax({
+            type: "POST",
+            url: "/BooksAvailable/Waitlist/" + bookId,
+            success: function (response) {
+                if (response.success) {
+                    alert(response.message);
+                    $('#waitlistModal').modal('hide');
+                    location.reload(); // Reîncarcă pagina pentru a actualiza lista de așteptare
+                } else {
+                    alert(response.message);
+                    $('#waitlistModal').modal('hide');
+                }
+            },
+            error: function () {
+                alert("Eroare de comunicare cu serverul.");
+                $('#waitlistModal').modal('hide');
+            }
+        });
+    });
+</script>
