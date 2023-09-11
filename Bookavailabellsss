@@ -1,0 +1,215 @@
+
+
+
+@using MyLibrary.ADClasses
+@{ var usrData = new UserInfo();}
+
+@model IEnumerable<MyLibrary.Models.BooksAvailable>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Books Availables</h2>
+
+
+
+<table class="table table-bordered table-sm shadow">
+    <tr class="">
+        <th>
+            @Html.DisplayNameFor(model => model.BookName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Author)
+        </th>
+
+        <th>
+            @Html.DisplayNameFor(model => model.Isbn13)
+        </th>
+
+
+        @if (usrData.checkIfUserIsAdmin())
+        {
+            <th>
+                @Html.DisplayNameFor(model => model.Isbn10)
+            </th>
+
+        }
+
+        <th>
+            @Html.DisplayNameFor(model => model.Publisher)
+        </th>
+
+        <th>
+            @Html.DisplayNameFor(model => model.YearPublished)
+        </th>
+
+        <th>
+            @Html.DisplayNameFor(model => model.CoverImage)
+        </th>
+        @if (usrData.checkIfUserIsAdmin())
+        {
+            <th>
+
+                @Html.DisplayNameFor(model => model.QtyAvailable)
+
+            </th>
+        }
+        <th>Action</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.BookName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Author)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Isbn13)
+            </td>
+            @if (usrData.checkIfUserIsAdmin())
+            {
+                <td>
+
+                    @Html.DisplayFor(modelItem => item.Isbn10)
+
+                </td>
+            }
+            <td>
+                @Html.DisplayFor(modelItem => item.Publisher)
+            </td>
+
+            <td>
+                @Html.DisplayFor(modelItem => item.YearPublished)
+            </td>
+
+            <td>
+                @*@Html.DisplayFor(modelItem => item.CoverImage)*@
+                <img src="@item.CoverImage" class="img-thumbnail" alt="" width="50" height="150" />
+            </td>
+            @if (usrData.checkIfUserIsAdmin())
+            {
+                <td>
+                    {@Html.DisplayFor(modelItem => item.QtyAvailable)}
+
+                </td>
+            }
+
+            <td>
+                @Html.ActionLink("Details", "Details", new { id = item.id }, new { @class = "btn btn-success btn-sm" })
+
+                @if (item.QtyAvailable > 0)
+                {
+
+                    using (Html.BeginForm("Borrow", "BorrowBook", FormMethod.Post))
+                    {
+                        @Html.Hidden("isbn13", item.Isbn13)
+                        <button type="submit" class="btn btn-primary btn-sm">BORROW</button>
+                    }
+                }
+                else
+                {
+                    using (Html.BeginForm("join", "Waitlist", FormMethod.Post))
+                    {
+                        @Html.Hidden("isbn13", item.Isbn13)
+                        <button type="submit" class="btn btn-primary btn-sm">Waitlist</button>
+                    }
+
+                }
+            </td>
+
+        </tr>
+    }
+</table>
+
+
+
+
+
+using MyLibrary.Models;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Net;
+using System.Web;
+using System.Web.Mvc;
+
+namespace MyLibrary.Controllers
+{
+    public class BooksAvailableController : Controller
+    {
+        private I_CoposEntities db = new I_CoposEntities();
+
+        // GET: BooksAvailable
+        public ActionResult Index()
+        {
+            return View(db.BooksAvailables.OrderBy(p => p.Author).Distinct().ToList());
+        }
+
+        // GET: BooksAvailable/Details/5
+        public ActionResult Details(int? id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            BooksAvailable booksavailable = db.BooksAvailables.Find(id);
+            if (booksavailable == null)
+            {
+                return HttpNotFound();
+            }
+            return View(booksavailable);
+        }
+
+        public ActionResult BorrowAction(int? id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            var book = db.BooksAvailables.Find(id);
+            if (book == null || book.QtyAvailable <= 0)
+            {
+                return HttpNotFound();
+            }
+
+          
+
+            return RedirectToAction("Index");
+        }
+
+        
+
+
+        public ActionResult WaitlistAction(int? id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            var book = db.BooksAvailables.Find(id);
+            if (book == null || book.QtyAvailable > 0)
+            {
+                return HttpNotFound();
+            }
+
+
+            return RedirectToAction("Index");
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                db.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+    }
+}
