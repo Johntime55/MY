@@ -1,0 +1,59 @@
+!-- Modal pentru confirmarea împrumutului -->
+<div class="modal fade" id="confirmBorrowModal" tabindex="-1" role="dialog" aria-labelledby="confirmBorrowModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmBorrowModalLabel">Confirmare Împrumut Carte</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Sunteți sigur că doriți să împrumutați această carte?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Nu</button>
+                <button type="button" class="btn btn-primary" id="confirmBorrowButton">Da</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+// Funcția pentru afișarea modalului
+function showBorrowModal(isbn13) {
+    $('#confirmBorrowModal').modal('show');
+
+    // Atașăm ISBN-13 către butonul de confirmare pentru a-l folosi mai târziu
+    $('#confirmBorrowButton').data('isbn13', isbn13);
+}
+
+// Atașăm funcția de afișare a modalului la butonul "Borrow"
+$('.btn-borrow').on('click', function () {
+    var isbn13 = $(this).data('isbn13');
+    showBorrowModal(isbn13);
+});
+
+// Funcția pentru gestionarea acțiunii atunci când utilizatorul apasă butonul "Da"
+$('#confirmBorrowButton').on('click', function () {
+    var isbn13 = $(this).data('isbn13');
+    
+    // Aici puteți efectua o solicitare AJAX către controler pentru a efectua împrumutul
+    $.ajax({
+        url: '/BorrowBook/Borrow', // Actualizați cu calea corectă către controler
+        method: 'POST',
+        data: { isbn13: isbn13 }, // Trimiteți ISBN-13 către controler
+        success: function (response) {
+            // Aici puteți gestiona răspunsul de la controler, de exemplu, afișând un mesaj de succes
+            alert('Împrumutul a fost efectuat cu succes!');
+            $('#confirmBorrowModal').modal('hide');
+        },
+        error: function (error) {
+            // Aici puteți gestiona cazurile de eroare, de exemplu, afișând un mesaj de eroare
+            alert('A apărut o eroare la efectuarea împrumutului.');
+        }
+    });
+});
+
+
+￼Enter
