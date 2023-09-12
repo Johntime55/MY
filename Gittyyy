@@ -1,0 +1,61 @@
+<div id="waitlistModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="waitlistModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="waitlistModalLabel">Join Waitlist</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Do you want to join the waitlist for this book?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="confirmWaitlistButton">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+// Funcție pentru a afișa popup-ul și a gestiona Waitlist-ul cărții
+function joinWaitlist(isbn13) {
+    // Deschide modalul pentru Waitlist
+    $('#waitlistModal').modal('show');
+
+    // Atașează un eveniment de clic la butonul "Yes" din modal
+    $('#confirmWaitlistButton').click(function () {
+        // Aici puteți efectua o solicitare AJAX pentru a efectua Waitlist
+        $.ajax({
+            type: "POST",
+            url: "/Waitlist/Join",
+            data: { isbn13: isbn13 },
+            success: function (response) {
+                if (response.Success) {
+                    // Dacă Waitlist-ul a avut succes, puteți afișa un mesaj sau face alte acțiuni aici
+                    alert(response.Message);
+                    // Închide modalul
+                    $('#waitlistModal').modal('hide');
+                    // Reîncarcă pagina sau faceți alte acțiuni după Waitlist
+                    location.reload();
+                } else {
+                    // Dacă Waitlist-ul a eșuat, puteți afișa un mesaj de eroare
+                    alert(response.Message);
+                }
+            },
+            error: function () {
+                // În cazul unei erori, puteți afișa un mesaj de eroare
+                alert("An error occurred while joining the Waitlist.");
+            }
+        });
+    });
+
+    // Atașați un eveniment pentru închiderea modalului
+    $('#waitlistModal').on('hidden.bs.modal', function () {
+        // Dacă utilizatorul închide modalul fără a face Waitlist, eliminați event handler-ul pentru clic pe "Yes"
+        $('#confirmWaitlistButton').off('click');
+    });
+}
+￼Enter
