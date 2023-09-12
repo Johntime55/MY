@@ -1,0 +1,72 @@
+$(document).ready(function () {
+    // Atașați un eveniment de clic la butonul "Return Book"
+    $('.return-book').click(function () {
+        var isbn13 = $(this).data('isbn13');
+        // Deschide modalul pentru Return Book
+        openReturnBookPopup(isbn13);
+    });
+});
+
+function openReturnBookPopup(isbn13) {
+    // Deschide modalul pentru Return Book
+    $('#returnBookModal').modal('show');
+
+    // Atașează un eveniment de clic la butonul "Yes" din modal
+    $('#confirmReturnButton').click(function () {
+        // Aici puteți efectua o solicitare AJAX pentru a efectua returnarea cărții
+        $.ajax({
+            type: "POST",
+            url: "/BorrowBook/ReturnBook",
+            data: { isbn13: isbn13 },
+            success: function (response) {
+                if (response.Success) {
+                    // Dacă returnarea a avut succes, puteți afișa un mesaj sau face alte acțiuni aici
+                    alert(response.Message);
+                    // Închide modalul
+                    $('#returnBookModal').modal('hide');
+                    // Reîncarcă pagina sau faceți alte acțiuni după returnare
+                    location.reload();
+                } else {
+                    // Dacă returnarea a eșuat, puteți afișa un mesaj de eroare
+                    alert(response.Message);
+                }
+            },
+            error: function () {
+                // În cazul unei erori, puteți afișa un mesaj de eroare
+                alert("An error occurred while returning the book.");
+            }
+        });
+    });
+
+    // Atașați un eveniment pentru închiderea modalului
+    $('#returnBookModal').on('hidden.bs.modal', function () {
+        // Dacă utilizatorul închide modalul fără a face returnarea, eliminați event handler-ul pentru clic pe "Yes"
+        $('#confirmReturnButton').off('click');
+    });
+}
+
+
+<div class="modal fade" id="returnBookModal" tabindex="-1" role="dialog" aria-labelledby="returnBookModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="returnBookModalLabel">Return Book Confirmation</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to return this book?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="confirmReturnButton">Yes</button>
+            </div>
+        </div>
+    </div>
+</
+
+
+
+
+￼Enter
