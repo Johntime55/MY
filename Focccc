@@ -1,0 +1,188 @@
+<!-- Adăugați aceste link-uri în antetul paginii dvs. -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+@using MyLibrary.ADClasses
+@{ var usrData = new UserInfo(); }
+
+@model IEnumerable<MyLibrary.Models.BooksAvailable>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Books Available</h2>
+
+<table class="table table-bordered table-sm shadow">
+    <tr class="">
+        <!-- Coloanele existente ale tabelului -->
+        <!-- ... -->
+
+        <th>Action</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+<!-- Adăugați aceste link-uri în antetul paginii dvs. -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+@using MyLibrary.ADClasses
+@{ var usrData = new UserInfo(); }
+
+@model IEnumerable<MyLibrary.Models.BooksAvailable>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Books Available</h2>
+
+<table class="table table-bordered table-sm shadow">
+    <tr class="">
+        <!-- Coloanele existente ale tabelului -->
+        <!-- ... -->
+
+        <th>Action</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <!-- Coloanele existente ale tabelului -->
+            <!-- ... -->
+
+            <td>
+                @Html.ActionLink("Details", "Details", new { id = item.id }, new { @class = "btn btn-success btn-sm" })
+
+                @if (item.QtyAvailable > 0)
+                {
+                    <button type="button" class="btn btn-primary btn-sm" onclick="borrowBook('@item.Isbn13')">BORROW</button>
+                }
+                else
+                {
+                    using (Html.BeginForm("join", "Waitlist", FormMethod.Post))
+                    {
+                        @Html.Hidden("isbn13", item.Isbn13)
+                        <button type="submit" class="btn btn-primary btn-sm">Waitlist</button>
+                    }
+                }
+            </td>
+        </tr>
+    }
+</table>
+
+<!-- Modal pentru împrumutul cărții -->
+<div class="modal fade" id="borrowModal" tabindex="-1" role="dialog" aria-labelledby="borrowModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="borrowModalLabel">Borrow Confirmation</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to borrow this book?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="confirmBorrowButton">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Funcție pentru a afișa popup-ul și a gestiona împrumutul cărții
+    function borrowBook(isbn13) {
+        // Deschide modalul de împrumut
+        $('#borrowModal').modal('show');
+
+        // Atașează un eveniment de clic la butonul "Yes" din modal
+        $('#confirmBorrowButton').click(function () {
+            // Aici puteți efectua o solicitare AJAX pentru a efectua împrumutul
+            $.ajax({
+                type: "POST",
+                url: "/BorrowBook/Borrow",
+                data: { isbn13: isbn13 },
+                success: function (response) {
+                    if (response.Success) {
+                        // Dacă împrumutul a avut succes, puteți afișa un mesaj sau face alte acțiuni aici
+                        alert(response.Message);
+                        // Închide modalul
+                        $('#borrowModal').modal('hide');
+                        // Reîncarcă pagina sau faceți alte acțiuni după împrumut
+                        location.reload();
+                    } else {
+                        // Dacă împrumutul a eșuat, puteți afișa un mesaj de eroare
+                        alert(response.Message);
+                    }
+                },
+                error: function () {
+                    // În cazul unei erori, puteți afișa un mesaj de eroare
+                    alert("An error occurred while borrowing the book.");
+                }
+            });
+        });
+    }
+</script>
+￼Enter            <!-- Coloanele existente ale tabelului -->
+            <!-- ... -->
+
+            <td>
+                @Html.ActionLink("Details", "Details", new { id = item.id }, new { @class = "btn btn-success btn-sm" })
+
+                @if (item.QtyAvailable > 0)
+                {
+                    <button type="button" class="btn btn-primary btn-sm" onclick="borrowBook('@item.Isbn13')">BORROW</button>
+                }
+                else
+                {
+                    using (Html.BeginForm("join", "Waitlist", FormMethod.Post))
+                    {
+                        @Html.Hidden("isbn13", item.Isbn13)
+                        <button type="submit" class="btn btn-primary btn-sm">Waitlist</button>
+                    }
+                }
+            </td>
+        </tr>
+    }
+</table>
+
+<!-- Modal pentru împrumutul cărții -->
+<div class="modal fade" id="borrowModal" tabindex="-1" role="dialog" aria-labelledby="borrowModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+  <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="borrowModalLabel">Borrow Confirmation</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to borrow this book?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="confirmBorrowButton">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Funcție pentru a afișa popup-ul și a gestiona împrumutul cărții
+    function borrowBook(isbn13) {
+        // Deschide modalul de împrumut
+        $('#borrowModal').modal('show');
+
+        // Atașează un eveniment de clic la butonul "Yes" din modal
+        $('#confirmBorrowButton').click(function () {
