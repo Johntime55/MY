@@ -1,0 +1,76 @@
+public ActionResult BookDetails(int id)
+{
+    // Căutați cartea în baza de date pe baza id-ului sau altui criteriu unic
+    var book = db.BooksAvailables.Find(id);
+
+    if (book == null)
+    {
+        // Returnați un răspuns JSON cu un mesaj de eroare
+        return Json(new { Success = false, Message = "Cartea nu a fost găsită." }, JsonRequestBehavior.AllowGet);
+    }
+
+    // Returnați detaliile cărții sub forma unui obiect JSON
+    return Json(new
+    {
+        Success = true,
+        BookName = book.BookName,
+        Author = book.Author,
+        Isbn13 = book.Isbn13,
+        // Adăugați aici și alte proprietăți ale cărții pe care doriți să le afișați
+    }, JsonRequestBehavior.AllowGet);
+}
+
+
+<!-- Modal pentru afișarea detaliilor cărții -->
+<div class="modal fade" id="bookDetailsModal" tabindex="-1" role="dialog" aria-labelledby="bookDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bookDetailsModalLabel">Detalii Carte</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="bookDetailsContent">
+                <!-- Aici vor fi afișate detaliile cărții utilizând JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Butonul pentru a afișa detaliile cărții -->
+<button type="button" class="btn btn-primary" onclick="showBookDetails(@item.id)">Afișează Detalii</button>
+
+<script>
+    // Funcție pentru a afișa detaliile cărții în fereastra modală
+    function showBookDetails(id) {
+        // Afișați încărcarea în fereastra modală
+        $("#bookDetailsContent").html("<p>Se încarcă...</p>");
+        // Faceți o solicitare AJAX pentru a obține detaliile cărții
+        $.ajax({
+            type: "GET",
+            url: "/BooksAvailable/BookDetails/" + id,
+            success: function (response) {
+                if (response.Success) {
+                    // Afișați detaliile cărții în fereastra modală
+                    var detailsHtml = "<p><strong>Nume carte:</strong> " + response.BookName + "</p>" +
+                        "<p><strong>Autor:</strong> " + response.Author + "</p>" +
+                        "<p><strong>ISBN-13:</strong> " + response.Isbn13 + "</p>";
+                    // Adăugați aici și alte detalii ale cărții pe care doriți să le afișați
+                    $("#bookDetailsContent").html(detailsHtml);
+                } else {
+                    // Afișați un mesaj de eroare în fereastra modală
+                    $("#bookDetailsContent").html("<p>Eroare: " + response.Message + "</p>");
+                }
+            },
+            error: function () {
+                // Afișați un mesaj de eroare în fereastra modală în caz de eroare
+                $("#bookDetailsContent").html("<p>Eroare la încărcarea detaliilor cărții.</p>");
+            }
+        });
+        // Deschideți fereastra modală
+        $("#bookDetailsModal").modal("show");
+    }
+</script>
+
+￼Enter
